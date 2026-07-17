@@ -330,3 +330,9 @@ app.get('/deleteTrip/:id', checkAuthenticated, (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
+
+
+
+
+
+// [C237-025] Database connection to Azure MySQL Database
