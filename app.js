@@ -460,6 +460,19 @@ app.get('/deleteTrip/:id', checkAuthenticated, (req, res) => {
     });
 });
 
+app.get('/deleteAttraction/:id', checkAuthenticated, checkAdmin, (req, res) => {
+    const attractionId = req.params.id;
+
+    connection.query('DELETE FROM attractions WHERE attractionId = ?', [attractionId], (error, results) => {
+        if(error) {
+            console.error("Error deleting attraction:", error);
+            res.status(500).send('Error deleting attraction');
+        } else {
+            res.redirect('/attractions');
+        }
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
 
