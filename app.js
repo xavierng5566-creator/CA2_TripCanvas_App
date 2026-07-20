@@ -6,19 +6,10 @@ const multer = require('multer');
 const app = express();
 
 // Set up multer for file uploads
-const storage = multer.diskStorage({
+// Trip image storage
+const tripStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        if (file.fieldname === "image1" || file.fieldname === "image2" || file.fieldname === "image3") {
-            cb(null, 'public/images/trips/');
-        }
-
-        else if (file.fieldname === "attractionImage1" || file.fieldname === "attractionImage2" || file.fieldname === "attractionImage3") {
-            cb(null, 'public/images/attractions/');
-        }
-
-        else if (file.fieldname === "activityImage") {
-            cb(null, 'public/images/itineraries/');
-        }
+        cb(null, 'public/images/trips/');
     },
 
     filename: (req, file, cb) => {
@@ -26,7 +17,33 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage });
+const tripUpload = multer({ storage: tripStorage });
+
+// Attraction image storage
+const attractionStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images/attractions/');
+    },
+
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + "-" + file.originalname);
+    }
+});
+
+const attractionUpload = multer({ storage: attractionStorage });
+
+// Activity image storage
+const activityStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images/itineraries/');
+    },
+
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + "-" + file.originalname);
+    }
+});
+
+const activityUpload = multer({ storage: activityStorage });
 
 // const connection = mysql.createConnection({
 //     host: 'localhost',
@@ -115,11 +132,28 @@ app.get('/', (req, res) => {
     res.render('index', { user: req.session.user });
 });
 
-app.get('/inventory', checkAuthenticated, checkAdmin, (req, res) => {
-    // Fetch data from MySQL
-    connection.query('SELECT * FROM products', (error, results) => {
-        if (error) throw error;
-        res.render('inventory', { products: results, user: req.session.user });
+app.get('/adminDashboard', checkAuthenticated, checkAdmin, (req, res) => {
+    const attractionSql = 'SELECT COUNT(*) AS totalAttractions FROM attractions';
+    const tripSql = 'SELECT COUNT(*) AS totalTrips FROM trips';
+    const userSql = "SELECT COUNT(*) AS totalUsers FROM users WHERE role != 'admin'";
+
+    connection.query(attractionSql, (err1, attractionResult) => {
+        if (err1) throw err1;
+
+        connection.query(tripSql, (err2, tripResult) => {
+            if (err2) throw err2;
+
+            connection.query(userSql, (err3, userResult) => {
+                if (err3) throw err3;
+
+                res.render('adminDashboard', {
+                    user: req.session.user,
+                    totalAttractions: attractionResult[0].totalAttractions,
+                    totalTrips: tripResult[0].totalTrips,
+                    totalUsers: userResult[0].totalUsers
+                });
+            });
+        });
     });
 });
 
@@ -211,13 +245,8 @@ app.get('/addTrip', checkAuthenticated, (req, res) => {
     res.render('addTrip', { user: req.session.user });
 });
 
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
-
 app.post('/addTrip',
-    upload.fields([
+    tripUpload.fields([
         { name: 'image1' },
         { name: 'image2' },
         { name: 'image3' }
@@ -260,6 +289,11 @@ app.post('/addTrip',
         });
     });
 
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
+
 app.get('/updateTrip/:id', checkAuthenticated, (req, res) => {
     const tripId = req.params.id;
     const sql = 'SELECT * FROM trips WHERE tripId = ?';
@@ -279,7 +313,7 @@ app.get('/updateTrip/:id', checkAuthenticated, (req, res) => {
     });
 });
 
-app.post('/updateTrip/:id', upload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]), (req, res) => {
+app.post('/updateTrip/:id', tripUpload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]), (req, res) => {
         const tripId = req.params.id;
 
         // Extract trip data from the request body
