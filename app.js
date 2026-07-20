@@ -132,11 +132,28 @@ app.get('/', (req, res) => {
     res.render('index', { user: req.session.user });
 });
 
-app.get('/inventory', checkAuthenticated, checkAdmin, (req, res) => {
-    // Fetch data from MySQL
-    connection.query('SELECT * FROM products', (error, results) => {
-        if (error) throw error;
-        res.render('inventory', { products: results, user: req.session.user });
+app.get('/adminDashboard', checkAuthenticated, checkAdmin, (req, res) => {
+    const attractionSql = 'SELECT COUNT(*) AS totalAttractions FROM attractions';
+    const tripSql = 'SELECT COUNT(*) AS totalTrips FROM trips';
+    const userSql = "SELECT COUNT(*) AS totalUsers FROM users WHERE role != 'admin'";
+
+    connection.query(attractionSql, (err1, attractionResult) => {
+        if (err1) throw err1;
+
+        connection.query(tripSql, (err2, tripResult) => {
+            if (err2) throw err2;
+
+            connection.query(userSql, (err3, userResult) => {
+                if (err3) throw err3;
+
+                res.render('adminDashboard', {
+                    user: req.session.user,
+                    totalAttractions: attractionResult[0].totalAttractions,
+                    totalTrips: tripResult[0].totalTrips,
+                    totalUsers: userResult[0].totalUsers
+                });
+            });
+        });
     });
 });
 
