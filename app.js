@@ -289,6 +289,51 @@ app.post('/addTrip',
         });
     });
 
+// Route to render the addAttraction page, accessible only to authenticated admin users
+app.get('/addAttraction', checkAuthenticated, checkAdmin, (req, res) => {
+    res.render('addAttraction', { user: req.session.user });
+});
+
+app.post('/addAttraction', checkAuthenticated, checkAdmin,
+    attractionUpload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]),
+
+    (req, res) => {
+        const { name, country, city, category, description } = req.body;
+
+        let image1;
+        let image2;
+        let image3;
+
+        if (req.files.image1) {
+            image1 = req.files.image1[0].filename;
+        } else {
+            image1 = null;
+        }
+
+        if (req.files.image2) {
+            image2 = req.files.image2[0].filename;
+        } else {
+            image2 = null;
+        }
+
+        if (req.files.image3) {
+            image3 = req.files.image3[0].filename;
+        } else {
+            image3 = null;
+        }
+
+        const sql = `INSERT INTO attractions (name, country, city, category, description, image1, image2, image3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+        connection.query(sql, [name, country, city, category, description, image1, image2, image3], (error, results) => {
+            if (error) {
+                console.error("Error adding attraction:", error);
+                res.status(500).send("Error adding attraction");
+            } else {
+                res.redirect('/attractions');
+            }
+        });
+    });
+
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
