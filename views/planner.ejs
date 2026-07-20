@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>TripCanvas</title>
+</head>
+<body>
+    <%- include("partials/header") %>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><%= trip.tripName %> Planner</h2>
+                <p class="text-muted"><%= trip.city %>, <%= trip.country %></p>
+            </div>
+            <div>
+                <a href="/planner/<%= trip.tripId %>/add" class="btn btn-primary">Add More Plan</a>
+                <a href="/trip/<%= trip.tripId %>" class="btn btn-secondary">Back to Trip Details</a>
+            </div>
+        </div>
+
+        <% if (viewItem) { %>
+            <div class="card border-info mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><%= viewItem.title %></h5>
+                    <p class="text-muted mb-2">
+                        Day <%= viewItem.dayNumber %> • <%= viewItem.timeSlot || 'No time set' %>
+                    </p>
+                    <p><%= viewItem.description || 'No details added yet.' %></p>
+                </div>
+            </div>
+        <% } %>
+
+        <% if (days.length > 0) { %>
+            <div class="row">
+                <% days.forEach(day => { %>
+                    <% const dayItems = items.filter(item => Number(item.dayNumber) === Number(day.dayNumber)); %>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Day <%= day.dayNumber %></h5>
+                                <p class="text-muted mb-3"><%= day.label %></p>
+
+                                <% if (dayItems.length > 0) { %>
+                                    <ul class="list-group">
+                                        <% dayItems.forEach((item, itemIndex) => { %>
+                                            <li class="list-group-item">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <strong><%= item.sortOrder || itemIndex + 1 %>. <%= item.title %></strong>
+                                                        <% if (item.timeSlot) { %>
+                                                            <div class="text-muted small"><%= item.timeSlot %></div>
+                                                        <% } %>
+                                                        <% if (item.description) { %>
+                                                            <div class="small"><%= item.description %></div>
+                                                        <% } %>
+                                                    </div>
+
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a href="/planner/<%= trip.tripId %>/edit/<%= item.id %>" class="btn btn-outline-warning">Edit</a>
+                                                        <a href="/planner/<%= trip.tripId %>/delete/<%= item.id %>" class="btn btn-outline-danger" onclick="return confirm('Delete this itinerary item?')">Delete</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        <% }) %>
+                                    </ul>
+                                <% } else { %>
+                                    <p class="text-muted small">No itinerary items added for this day yet.</p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p>No itinerary days available.</p>
+        <% } %>
+    </div>
+</body>
+</html>

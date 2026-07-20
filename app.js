@@ -44,6 +44,62 @@ const activityStorage = multer.diskStorage({
 });
 
 const activityUpload = multer({ storage: activityStorage });
+function parseDateOnly(value) {
+    if (value instanceof Date) {
+        return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+        return null;
+    }
+
+    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+}
+
+function buildTripDays(startDate, endDate) {
+    const start = parseDateOnly(startDate);
+    const end = parseDateOnly(endDate);
+
+    if (!start || !end) {
+        return [];
+    }
+
+    const days = [];
+    const current = new Date(start);
+
+    while (current <= end) {
+        const dayDate = new Date(current);
+        days.push({
+            dayNumber: days.length + 1,
+            label: dayDate.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            }),
+            dateValue: `${dayDate.getFullYear()}-${String(dayDate.getMonth() + 1).padStart(2, '0')}-${String(dayDate.getDate()).padStart(2, '0')}`
+        });
+
+        current.setDate(current.getDate() + 1);
+    }
+
+    if (days.length === 0) {
+        days.push({
+            dayNumber: 1,
+            label: 'Trip Day 1',
+            dateValue: start.toISOString().split('T')[0]
+        });
+    }
+
+    return days;
+}
+
+// const connection = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: 'RP738964$',
+//     database: 'c237_supermarketdb'
+//   });
 
 // [C237-025] Database connection to Azure MySQL Database
 const connection = mysql.createConnection({
@@ -62,6 +118,28 @@ connection.connect((err) => {
         return;
     }
     console.log('Connected to MySQL database');
+
+    connection.query(`
+        CREATE TABLE IF NOT EXISTS itinerary_entries (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tripId INT NOT NULL,
+            dayNumber INT NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            timeSlot VARCHAR(50),
+            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (tripId) REFERENCES trips(tripId) ON DELETE CASCADE
+        )
+    `, (tableErr) => {
+        if (tableErr) {
+            console.error('Error creating itinerary_entries table:', tableErr);
+        } else {
+            console.log('Itinerary table ready');
+            connection.query('ALTER TABLE itinerary_entries ADD COLUMN sortOrder INT NOT NULL DEFAULT 1', () => {
+                // The column may already exist when the application is restarted.
+            });
+        }
+    });
 });
 
 // Set up view engine
@@ -230,6 +308,178 @@ app.get('/trip/:id', checkAuthenticated, (req, res) => {
             res.render('tripDetails', { trip: results[0], user: req.session.user });
         } else {
             res.status(404).send('Trip not found');
+        }
+    });
+});
+
+app.get('/planner/:id', checkAuthenticated, (req, res) => {
+    const tripId = req.params.id;
+
+    const tripSql = 'SELECT * FROM trips WHERE tripId = ?';
+    connection.query(tripSql, [tripId], (error, tripResults) => {
+        if (error) throw error;
+
+        if (tripResults.length === 0) {
+            return res.status(404).send('Trip not found');
+        }
+
+        const trip = tripResults[0];
+        const days = buildTripDays(trip.startDate, trip.endDate);
+
+        const itemSql = 'SELECT * FROM itinerary_entries WHERE tripId = ? ORDER BY dayNumber ASC, sortOrder ASC, id ASC';
+        connection.query(itemSql, [tripId], (itemError, itineraryItems) => {
+            if (itemError) throw itemError;
+
+            res.render('planner', {
+                trip,
+                days,
+                items: itineraryItems,
+                user: req.session.user,
+                editItem: null,
+                viewItem: null
+            });
+        });
+    });
+});
+
+app.get('/planner/:id/add', checkAuthenticated, (req, res) => {
+    const tripId = req.params.id;
+
+    const tripSql = 'SELECT * FROM trips WHERE tripId = ?';
+    connection.query(tripSql, [tripId], (error, tripResults) => {
+        if (error) throw error;
+        if (tripResults.length === 0) return res.status(404).send('Trip not found');
+
+        const trip = tripResults[0];
+        const days = buildTripDays(trip.startDate, trip.endDate);
+
+        res.render('addPlan', {
+            trip,
+            days,
+            user: req.session.user
+        });
+    });
+});
+
+app.post('/planner/:id/add', checkAuthenticated, (req, res) => {
+    const tripId = req.params.id;
+    const { dayNumber, title, description, timeSlot } = req.body;
+
+    if (!title) {
+        req.flash('error', 'Title is required');
+        return res.redirect(`/planner/${tripId}/add`);
+    }
+
+    const selectedDay = parseInt(dayNumber, 10) || 1;
+    connection.query('SELECT COALESCE(MAX(sortOrder), 0) + 1 AS nextOrder FROM itinerary_entries WHERE tripId = ? AND dayNumber = ?', [tripId, selectedDay], (orderErr, orderRows) => {
+        if (orderErr) return res.status(500).send('Error creating plan order');
+        const sql = 'INSERT INTO itinerary_entries (tripId, dayNumber, title, description, timeSlot, sortOrder) VALUES (?, ?, ?, ?, ?, ?)';
+        connection.query(sql, [tripId, selectedDay, title, description, timeSlot, orderRows[0].nextOrder], (err) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error adding itinerary item');
+        } else {
+            res.redirect(`/planner/${tripId}`);
+        }
+        });
+    });
+});
+
+app.get('/planner/:id/edit/:itemId', checkAuthenticated, (req, res) => {
+    const tripId = req.params.id;
+    const itemId = req.params.itemId;
+
+    const tripSql = 'SELECT * FROM trips WHERE tripId = ?';
+    connection.query(tripSql, [tripId], (error, tripResults) => {
+        if (error) throw error;
+        if (tripResults.length === 0) return res.status(404).send('Trip not found');
+
+        const trip = tripResults[0];
+        const days = buildTripDays(trip.startDate, trip.endDate);
+
+        const itemSql = 'SELECT * FROM itinerary_entries WHERE id = ? AND tripId = ?';
+        connection.query(itemSql, [itemId, tripId], (itemError, itemResults) => {
+            if (itemError) throw itemError;
+
+                const itemSqlAll = 'SELECT * FROM itinerary_entries WHERE tripId = ? ORDER BY dayNumber ASC, sortOrder ASC, id ASC';
+            connection.query(itemSqlAll, [tripId], (allErr, itineraryItems) => {
+                if (allErr) throw allErr;
+
+                if (itemResults.length === 0) {
+                    return res.status(404).send('Plan not found');
+                }
+
+                res.render('editPlan', {
+                    trip,
+                    days,
+                    item: itemResults[0],
+                    user: req.session.user
+                });
+            });
+        });
+    });
+});
+
+app.post('/planner/:id/edit/:itemId', checkAuthenticated, (req, res) => {
+    const tripId = req.params.id;
+    const itemId = req.params.itemId;
+    const { dayNumber, title, description, timeSlot, sortOrder } = req.body;
+
+    const sql = 'UPDATE itinerary_entries SET dayNumber = ?, title = ?, description = ?, timeSlot = ?, sortOrder = ? WHERE id = ? AND tripId = ?';
+    connection.query(sql, [parseInt(dayNumber, 10) || 1, title, description, timeSlot, Math.max(1, parseInt(sortOrder, 10) || 1), itemId, tripId], (err) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error updating itinerary item');
+        } else {
+            res.redirect(`/planner/${tripId}`);
+        }
+    });
+});
+
+app.get('/planner/:id/view/:itemId', checkAuthenticated, (req, res) => {
+    const tripId = req.params.id;
+    const itemId = req.params.itemId;
+
+    const tripSql = 'SELECT * FROM trips WHERE tripId = ?';
+    connection.query(tripSql, [tripId], (error, tripResults) => {
+        if (error) throw error;
+        if (tripResults.length === 0) return res.status(404).send('Trip not found');
+
+        const trip = tripResults[0];
+        const days = buildTripDays(trip.startDate, trip.endDate);
+
+        const itemSql = 'SELECT * FROM itinerary_entries WHERE id = ? AND tripId = ?';
+        connection.query(itemSql, [itemId, tripId], (itemError, itemResults) => {
+            if (itemError) throw itemError;
+
+                const itemSqlAll = 'SELECT * FROM itinerary_entries WHERE tripId = ? ORDER BY dayNumber ASC, sortOrder ASC, id ASC';
+            connection.query(itemSqlAll, [tripId], (allErr, itineraryItems) => {
+                if (allErr) throw allErr;
+
+                res.render('planner', {
+                    trip,
+                    days,
+                    items: itineraryItems,
+                    user: req.session.user,
+                    editItem: null,
+                    viewItem: itemResults[0] || null
+                });
+            });
+        });
+    });
+});
+
+app.get('/planner/:id/delete/:itemId', checkAuthenticated, (req, res) => {
+    const tripId = req.params.id;
+    const itemId = req.params.itemId;
+
+    const sql = 'DELETE FROM itinerary_entries WHERE id = ? AND tripId = ?';
+    connection.query(sql, [itemId, tripId], (err) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error deleting itinerary item');
+        } else {
+            res.redirect(`/planner/${tripId}`);
         }
     });
 });
@@ -494,3 +744,9 @@ app.get('/deleteAttraction/:id', checkAuthenticated, checkAdmin, (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
+
+
+
+
+
+// [C237-025] Database connection to Azure MySQL Database
