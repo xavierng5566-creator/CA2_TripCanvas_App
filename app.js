@@ -1,4 +1,4 @@
-const express = require('express');
+  const express = require('express');
 const mysql = require('mysql2');
 const session = require('express-session');
 const flash = require('connect-flash');
@@ -314,6 +314,59 @@ app.post('/updateTrip/:id', upload.fields([{ name: 'image1' }, { name: 'image2' 
             }
         });
     });
+    
+app.get('/updateAttraction/:id', checkAuthenticated, checkAdmin, (req, res) => {
+    const attractionId = req.params.id;
+    const sql = 'SELECT * FROM attractions WHERE attractionId = ?';
+
+    // Fetch data from MySQL based on the attraction ID
+    connection.query(sql, [attractionId], (error, results) => {
+        if (error) throw error;
+
+        // Check if any attraction with the given ID was found
+        if (results.length > 0) {
+            // Render HTML page with the attraction data
+            res.render('updateAttraction', { attraction: results[0], user: req.session.user });
+        } else {
+            // If no attraction with the given ID was found, render a 404 page or handle it accordingly
+            res.status(404).send('Attraction not found');
+        }
+    });
+});
+
+app.post('/updateAttraction/:id', checkAuthenticated, checkAdmin, attractionUpload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]), (req, res) => {
+    const attractionId = req.params.id;
+    const { name, country, city, category, description } = req.body;
+
+    // Keep existing images if no new image is uploaded
+    let image1 = req.body.currentImage1 || null;
+    let image2 = req.body.currentImage2 || null;
+    let image3 = req.body.currentImage3 || null;
+
+    // Replace images if new ones are uploaded
+    if (req.files.image1) {
+        image1 = req.files.image1[0].filename;
+    }
+
+    if (req.files.image2) {
+        image2 = req.files.image2[0].filename;
+    }
+
+    if (req.files.image3) {
+        image3 = req.files.image3[0].filename;
+    }
+
+    const sql = `UPDATE attractions SET name=?, country=?, city=?, category=?, description=?, image1=?, image2=?, image3=? WHERE attractionId=?`;
+    // Insert the new image(s) into the database
+    connection.query(sql, [name, country, city, category, description, image1, image2, image3, attractionId], (error) => {
+        if(error) {
+            console.error(error);
+            res.status(500).send("Error updating attraction");
+        } else {
+            res.redirect('/attractions');
+        }
+    });
+});
 
 app.get('/deleteTrip/:id', checkAuthenticated, (req, res) => {
     const tripId = req.params.id;
@@ -330,9 +383,5 @@ app.get('/deleteTrip/:id', checkAuthenticated, (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
-
-
-
-
 
 // [C237-025] Database connection to Azure MySQL Database
