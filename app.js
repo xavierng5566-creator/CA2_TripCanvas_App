@@ -1,4 +1,4 @@
-  const express = require('express');
+const express = require('express');
 const mysql = require('mysql2');
 const session = require('express-session');
 const flash = require('connect-flash');
@@ -44,13 +44,6 @@ const activityStorage = multer.diskStorage({
 });
 
 const activityUpload = multer({ storage: activityStorage });
-
-// const connection = mysql.createConnection({
-//     host: 'localhost',
-//     user: 'root',
-//     password: 'RP738964$',
-//     database: 'c237_supermarketdb'
-//   });
 
 // [C237-025] Database connection to Azure MySQL Database
 const connection = mysql.createConnection({
@@ -289,6 +282,32 @@ app.post('/addTrip',
         });
     });
 
+app.get('/attractions', checkAuthenticated, (req, res) => {
+    const sql = 'SELECT * FROM attractions';
+
+    // Fetch attractions data from SQL
+    connection.query(sql, (err, results) => {
+        if (err) throw err;
+        res.render('attractionList', { user: req.session.user, attractions: results });
+    });
+});
+
+app.get('/attraction/:id', checkAuthenticated, (req, res) => {
+    const attractionId = req.params.id;
+    const sql = 'SELECT * FROM attractions WHERE attractionId = ?';
+
+    connection.query(sql, [attractionId], (error, results) => {
+        if (error) throw error;
+
+        if (results.length > 0) {
+            res.render('attractionDetails', { user: req.session.user, attraction: results[0] });
+        }
+        else {
+            res.status(404).send('Attraction not found');
+        }
+    });
+});
+
 // Route to render the addAttraction page, accessible only to authenticated admin users
 app.get('/addAttraction', checkAuthenticated, checkAdmin, (req, res) => {
     res.render('addAttraction', { user: req.session.user });
@@ -475,5 +494,3 @@ app.get('/deleteAttraction/:id', checkAuthenticated, checkAdmin, (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
-
-// [C237-025] Database connection to Azure MySQL Database
