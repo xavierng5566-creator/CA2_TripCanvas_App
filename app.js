@@ -6,19 +6,10 @@ const multer = require('multer');
 const app = express();
 
 // Set up multer for file uploads
-const storage = multer.diskStorage({
+// Trip image storage
+const tripStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        if (file.fieldname === "image1" || file.fieldname === "image2" || file.fieldname === "image3") {
-            cb(null, 'public/images/trips/');
-        }
-
-        else if (file.fieldname === "attractionImage1" || file.fieldname === "attractionImage2" || file.fieldname === "attractionImage3") {
-            cb(null, 'public/images/attractions/');
-        }
-
-        else if (file.fieldname === "activityImage") {
-            cb(null, 'public/images/itineraries/');
-        }
+        cb(null, 'public/images/trips/');
     },
 
     filename: (req, file, cb) => {
@@ -26,7 +17,33 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage });
+const tripUpload = multer({ storage: tripStorage });
+
+// Attraction image storage
+const attractionStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images/attractions/');
+    },
+
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + "-" + file.originalname);
+    }
+});
+
+const attractionUpload = multer({ storage: attractionStorage });
+
+// Activity image storage
+const activityStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images/itineraries/');
+    },
+
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + "-" + file.originalname);
+    }
+});
+
+const activityUpload = multer({ storage: activityStorage });
 
 // const connection = mysql.createConnection({
 //     host: 'localhost',
