@@ -228,13 +228,8 @@ app.get('/addTrip', checkAuthenticated, (req, res) => {
     res.render('addTrip', { user: req.session.user });
 });
 
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
-
 app.post('/addTrip',
-    upload.fields([
+    tripUpload.fields([
         { name: 'image1' },
         { name: 'image2' },
         { name: 'image3' }
@@ -277,6 +272,11 @@ app.post('/addTrip',
         });
     });
 
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
+
 app.get('/updateTrip/:id', checkAuthenticated, (req, res) => {
     const tripId = req.params.id;
     const sql = 'SELECT * FROM trips WHERE tripId = ?';
@@ -296,7 +296,7 @@ app.get('/updateTrip/:id', checkAuthenticated, (req, res) => {
     });
 });
 
-app.post('/updateTrip/:id', upload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]), (req, res) => {
+app.post('/updateTrip/:id', tripUpload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]), (req, res) => {
         const tripId = req.params.id;
 
         // Extract trip data from the request body
