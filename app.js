@@ -729,6 +729,207 @@ app.get('/deleteTrip/:id', checkAuthenticated, (req, res) => {
     });
 });
 
+// ================= CHECKLIST ROUTES =================
+
+// Category options for the checklist item dropdown
+const CHECKLIST_CATEGORIES = [
+    'Documents',
+    'Clothing',
+    'Footwear',
+    'Toiletries',
+    'Electronics',
+    'Health & Safety',
+    'Money & Cards',
+    'Miscellaneous'
+];
+
+// GET /checklist - pick which trip's checklist to view
+app.get('/checklist', checkAuthenticated, (req, res) => {
+    const sql = 'SELECT * FROM trips WHERE userId = ?';
+
+    connection.query(sql, [req.session.user.id], (error, trips) => {
+        if (error) throw error;
+        res.render('checklist', {
+            user: req.session.user,
+            trips: trips,
+            messages: req.flash('success'),
+            errors: req.flash('error')
+        });
+    });
+});
+
+// GET /checklist/:tripId - view/manage checklist items for a trip
+app.get('/checklist/:tripId', checkAuthenticated, (req, res) => {
+    const tripId = req.params.tripId;
+    const tripSql = 'SELECT * FROM trips WHERE tripId = ? AND userId = ?';
+
+    connection.query(tripSql, [tripId, req.session.user.id], (error, trips) => {
+        if (error) throw error;
+
+        if (trips.length === 0) {
+            req.flash('error', 'Trip not found.');
+            return res.redirect('/checklist');
+        }
+
+        const itemsSql = 'SELECT * FROM checklists WHERE tripId = ? ORDER BY category, itemName';
+
+        connection.query(itemsSql, [tripId], (error, items) => {
+            if (error) throw error;
+            res.render('checklistItems', {
+                user: req.session.user,
+                trip: trips[0],
+                items: items,
+                categories: CHECKLIST_CATEGORIES,
+                messages: req.flash('success'),
+                errors: req.flash('error')
+            });
+        });
+    });
+});
+
+// POST /checklist/:tripId/add - add a new checklist item to a trip
+app.post('/checklist/:tripId/add', checkAuthenticated, (req, res) => {
+    const tripId = req.params.tripId;
+    const { itemName, category } = req.body;
+
+    if (!itemName || !category) {
+        req.flash('error', 'Item name and category are required.');
+        return res.redirect('/checklist/' + tripId);
+    }
+
+    // Make sure the trip belongs to the logged in user
+    const tripSql = 'SELECT * FROM trips WHERE tripId = ? AND userId = ?';
+    connection.query(tripSql, [tripId, req.session.user.id], (error, trips) => {
+        if (error) throw error;
+
+        if (trips.length === 0) {
+            req.flash('error', 'Trip not found.');
+            return res.redirect('/checklist');
+        }
+
+        const sql = 'INSERT INTO checklists (tripId, itemName, category) VALUES (?, ?, ?)';
+        connection.query(sql, [tripId, itemName, category], (error) => {
+            if (error) {
+                console.error('Error adding checklist item:', error);
+                req.flash('error', 'Error adding checklist item.');
+            } else {
+                req.flash('success', 'Item added to checklist.');
+            }
+            res.redirect('/checklist/' + tripId);
+        });
+    });
+});
+
+// POST /checklist/:tripId/toggle/:checklistId - quick toggle packed status
+// Called via fetch() from the client, so it replies with JSON instead of redirecting -
+// this is what lets the "Packed" checkbox update without a full page reload.
+app.post('/checklist/:tripId/toggle/:checklistId', checkAuthenticated, (req, res) => {
+    const { tripId, checklistId } = req.params;
+
+    const sql = `SELECT c.isPacked FROM checklists c
+                 INNER JOIN trips t ON c.tripId = t.tripId
+                 WHERE c.checklistId = ? AND c.tripId = ? AND t.userId = ?`;
+
+    connection.query(sql, [checklistId, tripId, req.session.user.id], (error, results) => {
+        if (error) {
+            console.error('Error toggling checklist item:', error);
+            return res.status(500).json({ success: false });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ success: false });
+        }
+
+        const newStatus = results[0].isPacked ? 0 : 1;
+        connection.query('UPDATE checklists SET isPacked = ? WHERE checklistId = ?', [newStatus, checklistId], (error) => {
+            if (error) {
+                console.error('Error toggling checklist item:', error);
+                return res.status(500).json({ success: false });
+            }
+            res.json({ success: true, isPacked: newStatus });
+        });
+    });
+});
+
+// GET /checklist/edit/:checklistId - show edit form for a checklist item
+app.get('/checklist/edit/:checklistId', checkAuthenticated, (req, res) => {
+    const checklistId = req.params.checklistId;
+    const sql = `SELECT c.*, t.tripName, t.userId FROM checklists c
+                 INNER JOIN trips t ON c.tripId = t.tripId
+                 WHERE c.checklistId = ?`;
+
+    connection.query(sql, [checklistId], (error, results) => {
+        if (error) throw error;
+
+        if (results.length === 0 || results[0].userId !== req.session.user.id) {
+            req.flash('error', 'Checklist item not found.');
+            return res.redirect('/checklist');
+        }
+
+        res.render('editChecklist', { user: req.session.user, item: results[0], categories: CHECKLIST_CATEGORIES });
+    });
+});
+
+// POST /checklist/edit/:checklistId - update a checklist item
+app.post('/checklist/edit/:checklistId', checkAuthenticated, (req, res) => {
+    const checklistId = req.params.checklistId;
+    const { itemName, category, tripId } = req.body;
+    const isPacked = req.body.isPacked ? 1 : 0;
+
+    // Make sure this checklist item belongs to a trip owned by the logged in user
+    const checkSql = `SELECT t.userId FROM checklists c
+                       INNER JOIN trips t ON c.tripId = t.tripId
+                       WHERE c.checklistId = ? AND c.tripId = ?`;
+
+    connection.query(checkSql, [checklistId, tripId], (error, results) => {
+        if (error) throw error;
+
+        if (results.length === 0 || results[0].userId !== req.session.user.id) {
+            req.flash('error', 'Checklist item not found.');
+            return res.redirect('/checklist');
+        }
+
+        const sql = 'UPDATE checklists SET itemName = ?, category = ?, isPacked = ? WHERE checklistId = ?';
+        connection.query(sql, [itemName, category, isPacked, checklistId], (error) => {
+            if (error) {
+                console.error('Error updating checklist item:', error);
+                req.flash('error', 'Error updating checklist item.');
+            } else {
+                req.flash('success', 'Checklist item updated.');
+            }
+            res.redirect('/checklist/' + tripId);
+        });
+    });
+});
+
+// GET /checklist/delete/:tripId/:checklistId - delete a checklist item
+app.get('/checklist/delete/:tripId/:checklistId', checkAuthenticated, (req, res) => {
+    const { tripId, checklistId } = req.params;
+
+    const checkSql = `SELECT t.userId FROM checklists c
+                       INNER JOIN trips t ON c.tripId = t.tripId
+                       WHERE c.checklistId = ? AND c.tripId = ?`;
+
+    connection.query(checkSql, [checklistId, tripId], (error, results) => {
+        if (error) throw error;
+
+        if (results.length === 0 || results[0].userId !== req.session.user.id) {
+            req.flash('error', 'Checklist item not found.');
+            return res.redirect('/checklist');
+        }
+
+        connection.query('DELETE FROM checklists WHERE checklistId = ?', [checklistId], (error) => {
+            if (error) {
+                console.error('Error deleting checklist item:', error);
+                req.flash('error', 'Error deleting checklist item.');
+            } else {
+                req.flash('success', 'Checklist item deleted.');
+            }
+            res.redirect('/checklist/' + tripId);
+        });
+    });
+});
+
 app.get('/deleteAttraction/:id', checkAuthenticated, checkAdmin, (req, res) => {
     const attractionId = req.params.id;
 
@@ -749,4 +950,4 @@ app.listen(PORT, () => console.log(`Server running on port http://localhost:${PO
 
 
 
-// [C237-025] Database connection to Azure MySQL Database
+
