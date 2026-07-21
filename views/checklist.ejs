@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <title>TripCanvas: Checklist</title>
+</head>
+
+<body>
+    <%- include('partials/header') %>
+
+    <div class="container mt-4">
+        <p>Welcome, <%= user.username %> (<%= user.role %>)</p>
+
+        <div class="text-center mb-4">
+            <h2>My Checklists</h2>
+            <p class="text-muted">Pick a trip to view or manage its packing checklist</p>
+        </div>
+
+        <% if (errors && errors.length > 0) { %>
+            <div class="alert alert-danger">
+                <% errors.forEach(function(error) { %>
+                    <p class="mb-0"><%= error %></p>
+                <% }); %>
+            </div>
+        <% } %>
+
+        <% if (messages && messages.length > 0) { %>
+            <div class="alert alert-success">
+                <% messages.forEach(function(message) { %>
+                    <p class="mb-0"><%= message %></p>
+                <% }); %>
+            </div>
+        <% } %>
+
+        <% if (trips.length === 0) { %>
+            <div class="text-center">
+                <p>You don't have any trips yet.</p>
+                <a href="/addTrip" class="btn btn-primary">Create a Trip</a>
+            </div>
+        <% } else { %>
+            <div class="row">
+                <% for (let i = 0; i < trips.length; i++) { %>
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= trips[i].tripName %></h5>
+                                <p class="card-text">
+                                    <%= trips[i].city %>, <%= trips[i].country %>
+                                </p>
+                                <a href="/checklist/<%= trips[i].tripId %>" class="btn btn-primary">View Checklist</a>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+</body>
+
+</html>
