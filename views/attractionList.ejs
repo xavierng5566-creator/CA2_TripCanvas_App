@@ -25,15 +25,72 @@
             <br>
 
             <% if(user.role==="admin" ) { %>
-                <div class="text-end mb-3">
-                    <a href="/addAttraction" class="btn btn-success">
-                        + Add Attraction
-                    </a>
+    <div class="text-end mb-3">
+        <a href="/addAttraction" class="btn btn-success">
+            + Add Attraction
+        </a>
+    </div>
+
+    <% } %>
+
+        <!-- Search / Filter / Sort -->
+        <form method="GET" action="/attractions" class="card shadow-sm p-3 mb-4">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control"
+                        placeholder="Name, city or country..." value="<%= query.search %>">
                 </div>
 
-                <% } %>
-                    <div class="row">
-                        <% for(let i=0; i < attractions.length; i++) { %>
+                <div class="col-md-2">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All</option>
+                        <% categories.forEach(function(cat) { %>
+                            <option value="<%= cat %>" <%= query.category===cat ? 'selected' : '' %>>
+                                <%= cat %>
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Country</label>
+                    <select name="country" class="form-select">
+                        <option value="">All</option>
+                        <% countries.forEach(function(c) { %>
+                            <option value="<%= c %>" <%= query.country===c ? 'selected' : '' %>>
+                                <%= c %>
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Sort By</label>
+                    <select name="sort" class="form-select">
+                        <option value="name_asc" <%= query.sort==='name_asc' ? 'selected' : '' %>>Name (A-Z)</option>
+                        <option value="name_desc" <%= query.sort==='name_desc' ? 'selected' : '' %>>Name (Z-A)</option>
+                        <option value="category_asc" <%= query.sort==='category_asc' ? 'selected' : '' %>>Category</option>
+                        <option value="country_asc" <%= query.sort==='country_asc' ? 'selected' : '' %>>Country</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Apply</button>
+                    <a href="/attractions" class="btn btn-outline-secondary w-100">Reset</a>
+                </div>
+            </div>
+        </form>
+
+        <% if (attractions.length===0) { %>
+            <div class="alert alert-info">
+                No attractions match your search/filter. Try adjusting your criteria.
+            </div>
+        <% } %>
+
+        <div class="row">
+            <% for(let i=0; i < attractions.length; i++) { %>
                             <div class="col-md-4 mb-4">
                                 <div class="card shadow-sm">
                                     <img src="/images/attractions/<%= attractions[i].image1 %>" class="card-img-top" height="220">
