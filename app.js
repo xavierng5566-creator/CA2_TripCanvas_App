@@ -288,12 +288,43 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/trips', checkAuthenticated, (req, res) => {
-    const sql = 'SELECT * FROM trips WHERE userId = ?';
+    const { search, status, sort } = req.query;
 
-    // Fetch trips data from SQL
-    connection.query(sql, [req.session.user.id], (error, results) => {
+    let sql = 'SELECT * FROM trips WHERE userId = ?';
+    const params = [req.session.user.id];
+
+    if (search && search.trim() !== '') {
+        sql += ' AND (tripName LIKE ? OR city LIKE ? OR country LIKE ?)';
+        const likeTerm = `%${search.trim()}%`;
+        params.push(likeTerm, likeTerm, likeTerm);
+    }
+
+    if (status && status.trim() !== '') {
+        sql += ' AND status = ?';
+        params.push(status);
+    }
+
+    const sortOptions = {
+        date_asc: 'startDate ASC',
+        date_desc: 'startDate DESC',
+        name_asc: 'tripName ASC',
+        name_desc: 'tripName DESC',
+        budget_asc: 'budget ASC',
+        budget_desc: 'budget DESC'
+    };
+    sql += ' ORDER BY ' + (sortOptions[sort] || 'startDate ASC');
+
+    connection.query(sql, params, (error, results) => {
         if (error) throw error;
-        res.render('tripList', { user: req.session.user, trips: results });
+        res.render('tripList', {
+            user: req.session.user,
+            trips: results,
+            query: {
+                search: search || '',
+                status: status || '',
+                sort: sort || ''
+            }
+        });
     });
 });
 
@@ -533,12 +564,64 @@ app.post('/addTrip',
     });
 
 app.get('/attractions', checkAuthenticated, (req, res) => {
-    const sql = 'SELECT * FROM attractions';
+    const { search, category, country, sort } = req.query;
+
+    let sql = 'SELECT * FROM attractions WHERE 1=1';
+    const params = [];
+
+    // --- Searching ---
+    if (search && search.trim() !== '') {
+        sql += ' AND (name LIKE ? OR city LIKE ? OR country LIKE ?)';
+        const likeTerm = `%${search.trim()}%`;
+        params.push(likeTerm, likeTerm, likeTerm);
+    }
+
+    // --- Filtering ---
+    if (category && category.trim() !== '') {
+        sql += ' AND category = ?';
+        params.push(category);
+    }
+
+    if (country && country.trim() !== '') {
+        sql += ' AND country = ?';
+        params.push(country);
+    }
+
+    // --- Organising / Sorting ---
+    const sortOptions = {
+        name_asc: 'name ASC',
+        name_desc: 'name DESC',
+        category_asc: 'category ASC',
+        country_asc: 'country ASC'
+    };
+    sql += ' ORDER BY ' + (sortOptions[sort] || 'name ASC');
 
     // Fetch attractions data from SQL
-    connection.query(sql, (err, results) => {
+    connection.query(sql, params, (err, results) => {
         if (err) throw err;
-        res.render('attractionList', { user: req.session.user, attractions: results });
+
+        // Pull distinct categories/countries so the filter dropdowns always
+        // reflect what's actually in the database (no hardcoded lists).
+        connection.query('SELECT DISTINCT category FROM attractions ORDER BY category', (catErr, categoryRows) => {
+            if (catErr) throw catErr;
+
+            connection.query('SELECT DISTINCT country FROM attractions ORDER BY country', (countryErr, countryRows) => {
+                if (countryErr) throw countryErr;
+
+                res.render('attractionList', {
+                    user: req.session.user,
+                    attractions: results,
+                    categories: categoryRows.map(row => row.category),
+                    countries: countryRows.map(row => row.country),
+                    query: {
+                        search: search || '',
+                        category: category || '',
+                        country: country || '',
+                        sort: sort || ''
+                    }
+                });
+            });
+        });
     });
 });
 
