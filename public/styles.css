@@ -121,14 +121,14 @@ img {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(8, 28, 66, 0.45), rgba(8, 28, 66, 0.72));
+    background: linear-gradient(180deg, rgba(8, 28, 66, 0.65), rgba(8, 28, 66, 0.85));
 }
 
 .hero-panel img {
     object-fit: cover;
     width: 100%;
     height: 100%;
-    filter: brightness(0.85);
+    filter: brightness(0.8);
 }
 
 .hero-copy {
@@ -138,7 +138,46 @@ img {
     align-items: center;
     justify-content: flex-start;
     padding: 3rem;
+}
+
+.hero-copy .hero-content {
+    background: rgba(7, 17, 48, 0.88);
+    border-radius: 24px;
+    padding: 1.8rem;
+    max-width: 520px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+}
+
+@media (min-width: 992px) {
+    .hero-copy {
+        padding-left: 4rem;
+    }
+}
+
+.hero-copy .hero-content h1,
+.hero-copy .hero-content p {
+    color: #f8fbff;
+    text-align: justify;
+}
+
+.hero-copy .hero-actions .btn {
+    min-width: 160px;
     color: #fff;
+}
+
+.hero-copy .hero-actions .btn-primary {
+    background: linear-gradient(135deg, var(--brand-teal), var(--brand-dark));
+    border: none;
+}
+
+.hero-copy .hero-actions .btn-secondary {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.hero-copy .hero-actions .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.24);
 }
 
 .hero-copy h1 {
@@ -265,9 +304,17 @@ img {
     min-height: 450px;
 }
 
-.attraction-card img {
-    height: 230px;
+.attraction-card img,
+.attraction-card .card-img-top {
+    width: 100%;
+    height: 100%;
+    min-height: 260px;
     object-fit: cover;
+    display: block;
+}
+
+.attraction-card.hero-image .card-img-top {
+    min-height: 420px;
 }
 
 .attraction-card .badge {
