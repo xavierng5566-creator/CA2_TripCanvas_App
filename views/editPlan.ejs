@@ -45,12 +45,12 @@
 
                         <div class="col-md-4">
                             <label for="timeSlot" class="form-label">Time</label>
-                            <input id="timeSlot" type="text" class="form-control" name="timeSlot" value="<%= item.timeSlot || '' %>" placeholder="Morning / 10:30 AM">
+                            <input id="timeSlot" type="text" class="form-control" name="timeSlot" value="<%= item.timeSlot || '' %>" placeholder="Morning / 10:30 AM" required>
                         </div>
 
                         <div class="col-12">
                             <label for="description" class="form-label">Description</label>
-                            <textarea id="description" class="form-control" name="description" rows="5" placeholder="Add details about this activity"><%= item.description || '' %></textarea>
+                            <textarea id="description" class="form-control" name="description" rows="5" placeholder="Add details about this activity" required><%= item.description || '' %></textarea>
                         </div>
 
                         <div class="col-12 d-flex gap-2 pt-2">
