@@ -51,9 +51,15 @@
                             required>
                     </div>
 
+                    <!-- Status -->
                     <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <input type="text" class="form-control" name="status" value="<%= trip.status %>" required>
+                        <label class="form-label">Trip Status</label>
+
+                        <select class="form-select" name="status">
+                            <option value="Planning">Planning</option>
+                            <option value="Upcoming">Upcoming</option>
+                            <option value="Completed">Completed</option>
+                        </select>
                     </div>
 
                     <div class="mb-3">
