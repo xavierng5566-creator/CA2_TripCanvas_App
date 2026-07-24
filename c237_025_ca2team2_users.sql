@@ -33,7 +33,7 @@ CREATE TABLE `users` (
   `contact` varchar(10) NOT NULL,
   `role` varchar(10) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (3,'Noel Goh','noelgoh@gmail.com','7c4a8d09ca3762af61e59520943dc26494f8941b','Clementi ','12345678','user'),(4,'Noel Tan','noeltan@gmail.com','7c4a8d09ca3762af61e59520943dc26494f8941b','Woodlands','87654321','admin'),(6,'Ace','ace@gmail.com','7c4a8d09ca3762af61e59520943dc26494f8941b','woodspace','98765432','user'),(7,'Ace','ace1@gmail.com','7c4a8d09ca3762af61e59520943dc26494f8941b','woodsp','88888888','user');
+INSERT INTO `users` VALUES (3,'Noel Goh','noelgoh@gmail.com','7c4a8d09ca3762af61e59520943dc26494f8941b','Clementi ','12345678','user'),(4,'Noel Tan','noeltan@gmail.com','7c4a8d09ca3762af61e59520943dc26494f8941b','Woodlands','87654321','admin'),(6,'Ace','ace@gmail.com','7c4a8d09ca3762af61e59520943dc26494f8941b','woodspace','98765432','user'),(7,'Ace','ace1@gmail.com','7c4a8d09ca3762af61e59520943dc26494f8941b','woodsp','88888888','user'),(9,'Trip Admin','admin@tripcanvas.com','7c4a8d09ca3762af61e59520943dc26494f8941b','Singapore','90001111','admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -55,4 +55,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-24 14:58:09
+-- Dump completed on 2026-07-24 16:54:36

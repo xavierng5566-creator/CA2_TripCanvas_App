@@ -33,7 +33,7 @@ CREATE TABLE `checklists` (
   PRIMARY KEY (`checklistId`),
   KEY `tripId` (`tripId`),
   CONSTRAINT `checklists_ibfk_1` FOREIGN KEY (`tripId`) REFERENCES `trips` (`tripId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,6 +42,7 @@ CREATE TABLE `checklists` (
 
 LOCK TABLES `checklists` WRITE;
 /*!40000 ALTER TABLE `checklists` DISABLE KEYS */;
+INSERT INTO `checklists` VALUES (14,11,'Passport','Documents',1),(15,11,'Camera','Electronics',1),(16,11,'Travel Adapter','Electronics',0),(17,12,'Clothes','Clothing',0),(18,13,'Museum Tickets','Documents',1),(19,14,'Wallet','Documents',1),(20,14,'Water Bottle ','Miscellaneous',0),(21,15,'Luxury Clothing','Clothing',0),(22,15,'Laptop','Electronics',1),(23,16,'Winter Jackets','Clothing',0),(24,16,'Gloves','Clothing',0),(25,17,'Travel Insurance','Documents',1),(26,17,'Camera','Electronics',1),(27,17,'Sunscreen','Health & Safety',1),(28,18,'Thermal Wear','Clothing',1),(29,18,'Hiking Boots','Footwear',0),(30,19,'Food Voucher','Documents',1),(31,19,'Portable Charger','Electronics',0),(32,20,'Sunscreen','Health & Safety',0),(33,20,'Swimming Clothes','Clothing',1),(34,21,'Camera','Electronics',1),(35,21,'Travel Guide','Documents',0),(36,22,'Walking Shoes','Footwear',0),(37,22,'Passport','Documents',0),(38,22,'Backpack with Clothes','Clothing',1),(39,23,'Flight Ticket','Documents',0),(40,23,'Power Bank','Electronics',0),(41,24,'Visa Documents','Documents',1),(42,24,'Luxury Camera','Electronics',0);
 /*!40000 ALTER TABLE `checklists` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -54,4 +55,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-24 14:58:09
+-- Dump completed on 2026-07-24 16:54:35

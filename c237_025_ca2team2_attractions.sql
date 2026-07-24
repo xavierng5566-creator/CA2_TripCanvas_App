@@ -35,7 +35,7 @@ CREATE TABLE `attractions` (
   `image2` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `image3` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`attractionId`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `attractions` (
 
 LOCK TABLES `attractions` WRITE;
 /*!40000 ALTER TABLE `attractions` DISABLE KEYS */;
-INSERT INTO `attractions` VALUES (3,'Historic Heart of Paris','France','Paris','Culture','Explore the historic heart of Paris, home to some of France\'s most iconic landmarks including the Eiffel Tower, Arc de Triomphe, and the Louvre Museum. This central area showcases the city\'s rich history, world-famous architecture, and artistic heritage. Visitors can admire breathtaking views along the Champs-Élysées, discover masterpieces at the Louvre, and experience the charm of Parisian streets and neighbourhoods.','1784608602658-attractions_paris2.jpg','1784608602660-attractions_paris3.jpg','1784608602660-attractions_paris4.jpg'),(4,'City of Athens','Greece','Athens','Culture','The Acropolis of Athens is an ancient hilltop citadel containing some of Greece\'s most important historical monuments, including the Parthenon. It represents the achievements of ancient Greek civilisation and provides visitors with stunning views over Athens.','1784608645558-attractions_athens1.jpg','1784608645562-attractions_athens2.jpg','1784608645566-attractions_athens3.jpg'),(5,'Blue Lagoon ','Iceland','Reykjavik','Nature','The Blue Lagoon is a famous geothermal spa surrounded by Iceland\'s volcanic landscape. Visitors can relax in its warm mineral-rich waters, enjoy scenic views, and experience one of Iceland\'s most unique natural attractions.','1784608672111-attractions_reykjavik1.jpg','1784608672112-attractions_reykjavik2.jpg','1784608672113-attractions_reykjavik3.jpg');
+INSERT INTO `attractions` VALUES (3,'Historic Heart of Paris','France','Paris','Culture','Explore the historic heart of Paris, home to some of France\'s most iconic landmarks including the Eiffel Tower, Arc de Triomphe, and the Louvre Museum. This central area showcases the city\'s rich history, world-famous architecture, and artistic heritage. Visitors can admire breathtaking views along the Champs-Élysées, discover masterpieces at the Louvre, and experience the charm of Parisian streets and neighbourhoods.','1784608602658-attractions_paris2.jpg','1784608602660-attractions_paris3.jpg','1784608602660-attractions_paris4.jpg'),(4,'City of Athens','Greece','Athens','Culture','The Acropolis of Athens is an ancient hilltop citadel containing some of Greece\'s most important historical monuments, including the Parthenon. It represents the achievements of ancient Greek civilisation and provides visitors with stunning views over Athens.','1784608645558-attractions_athens1.jpg','1784608645562-attractions_athens2.jpg','1784608645566-attractions_athens3.jpg'),(5,'Blue Lagoon ','Iceland','Reykjavik','Nature','The Blue Lagoon is a famous geothermal spa surrounded by Iceland\'s volcanic landscape. Visitors can relax in its warm mineral-rich waters, enjoy scenic views, and experience one of Iceland\'s most unique natural attractions.','1784608672111-attractions_reykjavik1.jpg','1784608672112-attractions_reykjavik2.jpg','1784608672113-attractions_reykjavik3.jpg'),(6,'Gardens by the Bay','Singapore','Singapore','Nature','A futuristic garden attraction featuring Supertree Grove, Flower Dome and Cloud Forest. Visitors can enjoy nature exhibits and spectacular night light shows.','1784877277972-Gardens_by_the_bay1.jpg','1784877277973-Gardens_by_the_bay2.jpg',NULL),(7,'Universal Studios Singapore','Singapore','Singapore','Entertainment','A movie-themed amusement park featuring exciting rides, attractions and entertainment based on popular films.','1784877378478-USS_1.jpg',NULL,NULL);
 /*!40000 ALTER TABLE `attractions` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -57,4 +57,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-24 14:58:09
+-- Dump completed on 2026-07-24 16:54:36

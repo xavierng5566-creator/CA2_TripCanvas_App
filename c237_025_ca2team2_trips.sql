@@ -38,7 +38,7 @@ CREATE TABLE `trips` (
   `image3` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `status` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`tripId`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,7 +47,7 @@ CREATE TABLE `trips` (
 
 LOCK TABLES `trips` WRITE;
 /*!40000 ALTER TABLE `trips` DISABLE KEYS */;
-INSERT INTO `trips` VALUES (9,4,'Japan','Japan','Tokyo','2026-07-21','2026-07-24',5000.00,'1784704587964-FH6 Home1.png','1784704588057-FH6 Track.png','1784704588143-redhood ferrari.png','Planning'),(10,4,'nagoya','japan','nagoya','2026-07-22','2026-07-29',4999.99,'1784872492267-FH6 Home.png',NULL,NULL,'Planning');
+INSERT INTO `trips` VALUES (11,3,'Tokyo Adventure','Japan','Tokyo','2026-08-01','2026-08-07',3500.00,'1784877622111-tokyo1_userid3_trip.jpg','1784877622112-tokyo2_userid3_trip.jpg','1784877622116-tokyo3_userid3_trip.jpg','Planning'),(12,3,'Singapore Sentosa Staycation','Singapore','Singapore','2026-09-10','2026-09-11',750.00,'1784877785590-singapore1_userid3_trip.jpg','1784877785591-singapore2_userid3_trip.jpg',NULL,'Planning'),(13,3,'Paris Culture Trip','France','Paris','2026-12-01','2026-12-10',6000.50,'1784877956641-paris1_userid3_trip.jpg',NULL,NULL,'Planning'),(14,3,'Budget Malaysia Visit','Malaysia','KL','2026-05-05','2026-05-05',80.00,'1784878123100-malaysia1_userid3_trip.jpg','1784878123101-malaysia2_userid_3_trip.jpg',NULL,'Planning'),(15,3,'Luxury Europe Holiday','Italy ','Rome','2027-01-01','2027-01-30',15000.00,'1784878618986-rome1_userid3_trip.jpg','1784878618989-rome2_userid3_trip.jpg',NULL,'Upcoming'),(16,4,'Japan Winter Trip','Japan','Kyoto','2026-12-14','2026-12-22',5000.00,'1784879847199-kyoto1_userid4_trip.jpg','1784879847201-kyoto2_userid4_trip.jpg','1784879847201-kyoto3_userid4_trip.jpg','Planning'),(17,4,'Athens History Tour','Greece ','Athens','2026-07-01','2026-07-05',2200.00,'1784879972733-athens1_userid4_trip.jpg',NULL,NULL,'Completed'),(18,4,'Iceland Adventure','Iceland','Reykjavik','2027-01-30','2027-02-10',9000.00,'1784880182028-reyjavik1_userid4_trip.jpg','1784880182028-reyjavik2_userid4_trip.jpg',NULL,'Planning'),(19,4,'One Day Food Trip','Singapore','Singapore','2026-11-20','2026-11-20',100.00,'1784880307107-singaporefood1_userid4_trip.jpg','1784880307107-singaporefood2_userid4_trip.jpg',NULL,'Upcoming'),(20,6,'Bali Relaxation','Indonesia','Bali','2026-08-01','2026-08-06',3000.00,'1784881046545-bali1_userid6_trip.jpg','1784881046547-bali2_userid6_trip.jpg',NULL,'Upcoming'),(21,6,'China Exploration','China','Shanghai','2027-01-10','2027-01-20',3500.00,'1784881216738-shanghai1_userid6_trip.jpg','1784881216739-shanghai2_userid6_trip.jpg','1784881216739-shanghai3_userid6_trip.jpg','Planning'),(22,6,'Extreme Budget Trip','Thailand','Bangkok','2026-10-01','2026-10-03',500.00,'1784881303941-bangkok1_userid6_trip.jpg',NULL,NULL,'Planning'),(23,7,'Australia Adventure','Australia','Sydney','2026-09-01','2026-09-10',7000.00,'1784882322070-sydney1_userid7_trip.jpg','1784882322073-sydney2_userid7_trip.jpg',NULL,'Upcoming'),(24,7,'Mega Holiday','USA','New York','2026-06-01','2026-06-20',20000.00,'1784882481693-newyork1_userid7_trip.jpg','1784882481693-newyork2_userid7_trip.jpg',NULL,'Completed');
 /*!40000 ALTER TABLE `trips` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -60,4 +60,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-24 14:58:10
+-- Dump completed on 2026-07-24 16:54:36
