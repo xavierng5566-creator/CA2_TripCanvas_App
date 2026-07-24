@@ -92,8 +92,13 @@
                                 <br>
 
                                 Dates:
-                                <%= trips[i].startDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %> - <%= trips[i].endDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %>
-
+                                <%= trips[i].startDate.toLocaleDateString('en-GB',
+                                    { day: 'numeric', month: 'short', year: 'numeric' }
+                                ) %> -
+                                <%= trips[i].endDate.toLocaleDateString('en-GB',
+                                    { day: 'numeric', month: 'short', year: 'numeric' }
+                                ) %>
+                                
                                 <br>
                                 Budget:
                                 $<%= trips[i].budget.toFixed(2) %>
