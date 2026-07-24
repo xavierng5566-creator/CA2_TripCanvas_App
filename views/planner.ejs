@@ -4,71 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/styles.css" rel="stylesheet">
     <title>TripCanvas</title>
 </head>
 <body>
     <%- include("partials/header") %>
 
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+    <main class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Design your perfect journey</h2>
+            <p class="section-subtitle mx-auto" style="max-width: 720px;">Organise activities day by day so every itinerary feels effortless and intentional.</p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 mb-4 justify-content-between align-items-start">
             <div>
-                <h2><%= trip.tripName %> Planner</h2>
-                <p class="text-muted"><%= trip.city %>, <%= trip.country %></p>
+                <h3 class="mb-1"><%= trip.tripName %> Planner</h3>
+                <p class="text-muted mb-0"><%= trip.city %>, <%= trip.country %></p>
             </div>
-            <div>
+            <div class="d-flex flex-wrap gap-2">
                 <a href="/planner/<%= trip.tripId %>/add" class="btn btn-primary">Add More Plan</a>
                 <a href="/trip/<%= trip.tripId %>" class="btn btn-secondary">Back to Trip Details</a>
             </div>
         </div>
 
         <% if (viewItem) { %>
-            <div class="card border-info mb-4">
-                <div class="card-body">
-                    <h5 class="card-title"><%= viewItem.title %></h5>
-                    <p class="text-muted mb-2">
-                        Day <%= viewItem.dayNumber %> • <%= viewItem.timeSlot || 'No time set' %>
-                    </p>
-                    <p><%= viewItem.description || 'No details added yet.' %></p>
+            <div class="card large-panel mb-4">
+                <div class="panel-body">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                        <div>
+                            <h5 class="mb-2"><%= viewItem.title %></h5>
+                            <p class="text-muted mb-1">Day <%= viewItem.dayNumber %> • <%= viewItem.timeSlot || 'No time set' %></p>
+                            <p class="mb-0"><%= viewItem.description || 'No details added yet.' %></p>
+                        </div>
+                        <div class="text-end">
+                            <span class="status-pill status-upcoming">Current focus</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         <% } %>
 
         <% if (days.length > 0) { %>
-            <div class="row">
+            <div class="row gy-4">
                 <% days.forEach(day => { %>
                     <% const dayItems = items.filter(item => Number(item.dayNumber) === Number(day.dayNumber)); %>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">Day <%= day.dayNumber %></h5>
-                                <p class="text-muted mb-3"><%= day.label %></p>
-
+                    <div class="col-lg-6">
+                        <div class="timeline-day p-0">
+                            <div class="day-header">
+                                <h5 class="mb-0">Day <%= day.dayNumber %></h5>
+                                <p class="mb-0 text-white small"><%= day.label %></p>
+                            </div>
+                            <div class="p-4">
                                 <% if (dayItems.length > 0) { %>
-                                    <ul class="list-group">
-                                        <% dayItems.forEach((item, itemIndex) => { %>
-                                            <li class="list-group-item">
-                                                <div class="d-flex justify-content-between align-items-start">
-                                                    <div>
-                                                        <strong><%= item.sortOrder || itemIndex + 1 %>. <%= item.title %></strong>
-                                                        <% if (item.timeSlot) { %>
-                                                            <div class="text-muted small"><%= item.timeSlot %></div>
-                                                        <% } %>
-                                                        <% if (item.description) { %>
-                                                            <div class="small"><%= item.description %></div>
-                                                        <% } %>
-                                                    </div>
-
-                                                    <div class="btn-group btn-group-sm">
-                                                        <a href="/planner/<%= trip.tripId %>/edit/<%= item.id %>" class="btn btn-outline-warning">Edit</a>
-                                                        <a href="/planner/<%= trip.tripId %>/delete/<%= item.id %>" class="btn btn-outline-danger" onclick="return confirm('Delete this itinerary item?')">Delete</a>
-                                                    </div>
+                                    <% dayItems.forEach((item, itemIndex) => { %>
+                                        <div class="timeline-item d-flex align-items-start">
+                                            <div class="timeline-badge"><%= itemIndex + 1 %></div>
+                                            <div>
+                                                <h6 class="mb-1"><%= item.title %></h6>
+                                                <p class="mb-1 text-muted"><%= item.timeSlot || 'No time set' %></p>
+                                                <p class="mb-2"><%= item.description %></p>
+                                                <div class="d-flex gap-2 flex-wrap">
+                                                    <a href="/planner/<%= trip.tripId %>/edit/<%= item.id %>" class="btn btn-sm btn-secondary">Edit</a>
+                                                    <a href="/planner/<%= trip.tripId %>/delete/<%= item.id %>" class="btn btn-sm btn-warning" onclick="return confirm('Delete this itinerary item?')">Delete</a>
                                                 </div>
-                                            </li>
-                                        <% }) %>
-                                    </ul>
+                                            </div>
+                                        </div>
+                                    <% }) %>
                                 <% } else { %>
-                                    <p class="text-muted small">No itinerary items added for this day yet.</p>
+                                    <p class="text-muted">No itinerary items added for this day yet.</p>
                                 <% } %>
                             </div>
                         </div>
@@ -76,8 +79,11 @@
                 <% }) %>
             </div>
         <% } else { %>
-            <p>No itinerary days available.</p>
+            <div class="card large-panel text-center py-5">
+                <h4>No itinerary days available.</h4>
+                <p class="text-muted">Add your plans to get started.</p>
+            </div>
         <% } %>
-    </div>
+    </main>
 </body>
 </html>
